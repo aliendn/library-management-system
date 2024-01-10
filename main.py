@@ -126,7 +126,7 @@ class LibraryApp(tk.Tk):
         users_data = pd.read_excel('users.xlsx')
 
         user_match = users_data[((users_data['full_name'] == username) | (users_data['email'] == username)) &
-                                (users_data['password'] == password)]
+                                (str(list(users_data['password'])[0]) == password)]
 
         if not user_match.empty:
             print("Logged in!")
