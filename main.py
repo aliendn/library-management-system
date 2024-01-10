@@ -279,7 +279,7 @@ class LibraryApp(tk.Tk):
         entry_book_author.grid(row=1, column=1)
 
         tk.Label(allow_disallow_window, text="Allow Borrowed?").grid(row=2, column=0)
-        allow_borrow_options = ["Yes", "No"]
+        allow_borrow_options = ["YES", "NO"]
         allow_borrow_var = tk.StringVar(allow_disallow_window)
         allow_borrow_var.set(allow_borrow_options[0])  # default value
         allow_borrow_dropdown = tk.OptionMenu(allow_disallow_window, allow_borrow_var, *allow_borrow_options)
@@ -898,3 +898,4 @@ if __name__ == "__main__":
     app = LibraryApp()
     app.redirect_main_menu_or_login()
     app.mainloop()
+
