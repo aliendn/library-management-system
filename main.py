@@ -215,7 +215,7 @@ class LibraryApp(tk.Tk):
             self.ban_users_button = tk.Button(self, text="Ban Users", command=self.ban_users)
             self.ban_users_button.grid(row=9, columnspan=2, pady=10)
 
-            self.register_user_staff_button = tk.Button(self, text="Register User (Staff)",
+            self.register_user_staff_button = tk.Button(self, text="Register User (Normal)",
                                                         command=self.register_user_staff)
             self.register_user_staff_button.grid(row=10, columnspan=2, pady=10)
 
@@ -591,30 +591,30 @@ class LibraryApp(tk.Tk):
     def show_borrowed_books(self):
         users_data = pd.read_excel('users.xlsx')
         borrowed_books = users_data.loc[users_data['full_name'] == self.user_session["name"], 'borrowed_books'].iloc[0]
-
-        if borrowed_books:
-            borrowed_books = ast.literal_eval(borrowed_books)
-            borrowed_books_table = tk.Toplevel(self)
-            borrowed_books_table.title("Borrowed Books")
-
-            # Display borrowed books in a table
-            row = 0
-            for book, count in borrowed_books.items():
-                tk.Label(borrowed_books_table, text="Book Name: ").grid(row=row, column=0)
-                tk.Label(borrowed_books_table, text=book[0]).grid(row=row, column=1)
-                tk.Label(borrowed_books_table, text="Author: ").grid(row=row + 1, column=0)
-                tk.Label(borrowed_books_table, text=book[1]).grid(row=row + 1, column=1)
-                tk.Label(borrowed_books_table, text="Count: ").grid(row=row + 2, column=0)
-                tk.Label(borrowed_books_table, text=count).grid(row=row + 2, column=1)
-                row += 3
-
-            def close_borrowed_books():
-                borrowed_books_table.destroy()  # Close the Toplevel window
-
-            close_button = tk.Button(borrowed_books_table, text="Close", command=close_borrowed_books)
-            close_button.grid(row=row, columnspan=2)
-        else:
+        borrowed_books = ast.literal_eval(borrowed_books)
+        if len(borrowed_books) == 0:
             print("You haven't borrowed any books yet.")
+            return
+        borrowed_books_table = tk.Toplevel(self)
+        borrowed_books_table.title("Borrowed Books")
+
+        # Display borrowed books in a table
+        row = 0
+        for book, count in borrowed_books.items():
+            tk.Label(borrowed_books_table, text="Book Name: ").grid(row=row, column=0)
+            tk.Label(borrowed_books_table, text=book[0]).grid(row=row, column=1)
+            tk.Label(borrowed_books_table, text="Author: ").grid(row=row + 1, column=0)
+            tk.Label(borrowed_books_table, text=book[1]).grid(row=row + 1, column=1)
+            tk.Label(borrowed_books_table, text="Count: ").grid(row=row + 2, column=0)
+            tk.Label(borrowed_books_table, text=count).grid(row=row + 2, column=1)
+            row += 3
+
+        def close_borrowed_books():
+            borrowed_books_table.destroy()  # Close the Toplevel window
+
+        close_button = tk.Button(borrowed_books_table, text="Close", command=close_borrowed_books)
+        close_button.grid(row=row, columnspan=2)
+
 
     def show_loaned_books(self):
         books_data = pd.read_excel('books.xlsx')
@@ -646,39 +646,39 @@ class LibraryApp(tk.Tk):
             print("You haven't loaned any books yet.")
 
     def borrow_book_func(self):
-        self.clear_window()
-        self.hide_login_register()
+        modal_window = tk.Toplevel(self)
+        modal_window.title("Borrow a Book")
 
-        self.label_borrow_book = tk.Label(self, text="Borrow a Book")
-        self.label_borrow_book.grid(row=0, columnspan=2)
+        label_borrow_book = tk.Label(modal_window, text="Borrow a Book")
+        label_borrow_book.grid(row=0, columnspan=2)
 
-        self.label_book_name = tk.Label(self, text="Name of the Book")
-        self.label_book_name.grid(row=1, column=0)
-        self.entry_book_name = tk.Entry(self)
-        self.entry_book_name.grid(row=1, column=1)
+        label_book_name = tk.Label(modal_window, text="Name of the Book")
+        label_book_name.grid(row=1, column=0)
+        entry_book_name = tk.Entry(modal_window)
+        entry_book_name.grid(row=1, column=1)
 
-        self.label_book_author = tk.Label(self, text="Author of Book")
-        self.label_book_author.grid(row=2, column=0)
-        self.entry_book_author = tk.Entry(self)
-        self.entry_book_author.grid(row=2, column=1)
+        label_book_author = tk.Label(modal_window, text="Author of Book")
+        label_book_author.grid(row=2, column=0)
+        entry_book_author = tk.Entry(modal_window)
+        entry_book_author.grid(row=2, column=1)
 
-        self.label_book_count = tk.Label(self, text="Number of Copies")
-        self.label_book_count.grid(row=3, column=0)
-        self.entry_book_count = tk.Entry(self)
-        self.entry_book_count.grid(row=3, column=1)
+        label_book_count = tk.Label(modal_window, text="Number of Copies")
+        label_book_count.grid(row=3, column=0)
+        entry_book_count = tk.Entry(modal_window)
+        entry_book_count.grid(row=3, column=1)
 
-        self.borrow_button = tk.Button(self, text="Borrow Book or Get My Book Back", command=self.borrow_book_action)
-        self.borrow_button.grid(row=4, columnspan=2, pady=10)
+        borrow_button = tk.Button(modal_window, text="Borrow Book", command=lambda: self.borrow_book_action(
+            entry_book_name.get(), entry_book_author.get(), entry_book_count.get(), modal_window))
+        borrow_button.grid(row=4, columnspan=2, pady=10)
 
-    def borrow_book_action(self):
-        book_name = self.entry_book_name.get()
-        book_author = self.entry_book_author.get()
+    def borrow_book_action(self, book_name, book_author, book_count, modal_window):
         try:
-            book_count = int(self.entry_book_count.get())
+            book_count = int(book_count)
         except ValueError:
             print("Not a valid book!")
-            self.redirect_main_menu()
+            modal_window.destroy()
             return
+
         books_data = pd.read_excel('books.xlsx')
         users_data = pd.read_excel('users.xlsx')
 
@@ -686,7 +686,7 @@ class LibraryApp(tk.Tk):
 
         if book_index.empty:
             print("This book does not exist.")
-            self.redirect_main_menu()
+            # self.redirect_main_menu()
             return
 
         book_row_index = book_index[0]  # Extracting the index label
@@ -695,12 +695,12 @@ class LibraryApp(tk.Tk):
 
         if book_row['allow_borrowed'] == 'NO':
             print("This book is not available for borrowing.")
-            self.redirect_main_menu()
+            # self.redirect_main_menu()
             return
 
         if book_row['count'] < book_count:
             print("Not enough copies available to borrow.")
-            self.redirect_main_menu()
+            # self.redirect_main_menu()
             return
 
         user_index = users_data[users_data['full_name'] == self.user_session["name"]].index[0]
@@ -746,9 +746,9 @@ class LibraryApp(tk.Tk):
 
         users_data.to_excel('users.xlsx', index=False)
         books_data.to_excel('books.xlsx', index=False)
-
+        modal_window.destroy()
         print("Book borrowed successfully!")
-        self.redirect_main_menu()
+        # self.redirect_main_menu()
 
     def show_books(self):
         books_data = pd.read_excel('books.xlsx')
@@ -779,7 +779,7 @@ class LibraryApp(tk.Tk):
                 ]
             self.display_books(filtered_books, book_table_window, columns)
 
-        search_button = tk.Button(search_frame, text="Search", command=search_books)
+        search_button = tk.Button(search_frame, text="Search or Empty to show all books", command=search_books)
         search_button.grid(row=0, column=2)
 
     def display_books(self, book_info, window, columns):
