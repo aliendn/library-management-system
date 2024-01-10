@@ -33,13 +33,11 @@ def email_validator(email):
 
 
 def full_name_validator(name):
-    # Implement your validation logic here
-    return len(name) > 0  # Example: Ensure the name is not empty
+    return len(name) > 0
 
 
 def password_validator(password):
-    # Implement your password validation logic here
-    return len(password) >= 8  # Example: Password should be at least 8 characters long
+    return len(password) >= 8
 
 
 class LibraryApp(tk.Tk):
@@ -51,7 +49,6 @@ class LibraryApp(tk.Tk):
         self.login_button.grid(row=0, pady=10)
         self.register_button = tk.Button(self, text="Register", command=self.show_register)
         self.register_button.grid(row=1, pady=10)
-        self.search_labels = []  # Store labels created during search
 
     def redirect_main_menu_or_login(self):
         self.clear_window()
@@ -152,6 +149,12 @@ class LibraryApp(tk.Tk):
         fullname = self.entry_fullname.get()
         password = self.entry_password.get()
         email = self.entry_email.get()
+
+        check_users_data = pd.read_excel('users.xlsx')
+        if check_users_data[(check_users_data['full_name'] == fullname) | (check_users_data['email'] == email)].shape[0] > 0:
+            print("User with the same full name or email already exists.")
+            return
+
         if not email_validator(email):
             print("Invalid email format. Please enter a valid email.")
             return
@@ -176,9 +179,7 @@ class LibraryApp(tk.Tk):
 
     def redirect_main_menu(self):
         self.clear_window()
-        self.hide_login_register()  # Hide the login and register buttons
-
-        # Display main menu widgets
+        self.hide_login_register()
         self.main_menu_label = tk.Label(self, text="Welcome to the Main Menu")
         self.main_menu_label.grid(row=0, columnspan=2)
         self.show_books = tk.Button(self, text="Show Books", command=self.show_books)
@@ -192,7 +193,6 @@ class LibraryApp(tk.Tk):
         self.show_loaned_books = tk.Button(self, text="Show Loaned Books", command=self.show_loaned_books)
         self.show_loaned_books.grid(row=3, column=1, pady=10)
 
-        # Super Admin Permissions
         if self.user_session["permissions"] == 0:
             self.show_users_button = tk.Button(self, text="Show Users", command=self.show_users)
             self.show_users_button.grid(row=4, columnspan=2, pady=10)
@@ -210,7 +210,6 @@ class LibraryApp(tk.Tk):
                                                    command=self.allow_disallow_borrow)
             self.allow_disallow_button.grid(row=8, columnspan=2, pady=10)
 
-        # Staff and Super Admin Permissions
         if self.user_session["permissions"] in [0, 1]:
             self.ban_users_button = tk.Button(self, text="Ban Users", command=self.ban_users)
             self.ban_users_button.grid(row=9, columnspan=2, pady=10)
@@ -256,7 +255,6 @@ class LibraryApp(tk.Tk):
                     users_data.to_excel('users.xlsx', index=False)
                     print("User deleted successfully.")
                     delete_user_window.destroy()
-                    # You might want to update the UI or perform other actions after deleting the user
                 else:
                     print(
                         "This user has borrowed books from our library. Please ask the user to return the books or consider banning the user.")
@@ -281,7 +279,7 @@ class LibraryApp(tk.Tk):
         tk.Label(allow_disallow_window, text="Allow Borrowed?").grid(row=2, column=0)
         allow_borrow_options = ["YES", "NO"]
         allow_borrow_var = tk.StringVar(allow_disallow_window)
-        allow_borrow_var.set(allow_borrow_options[0])  # default value
+        allow_borrow_var.set(allow_borrow_options[0])
         allow_borrow_dropdown = tk.OptionMenu(allow_disallow_window, allow_borrow_var, *allow_borrow_options)
         allow_borrow_dropdown.grid(row=2, column=1)
 
@@ -302,7 +300,6 @@ class LibraryApp(tk.Tk):
                 books_data.to_excel('books.xlsx', index=False)
                 print(f"Allow Borrowed status updated for {book_name} successfully.")
                 allow_disallow_window.destroy()
-                # You might want to update the UI or perform other actions after modifying allow_borrow status
             else:
                 print("Book not found. Please check the entered details.")
 
@@ -324,7 +321,7 @@ class LibraryApp(tk.Tk):
         tk.Label(ban_users_window, text="Is Banned?").grid(row=2, column=0)
         is_banned_options = ["Yes", "No"]
         is_banned_var = tk.StringVar(ban_users_window)
-        is_banned_var.set(is_banned_options[0])  # default value
+        is_banned_var.set(is_banned_options[0])
         is_banned_dropdown = tk.OptionMenu(ban_users_window, is_banned_var, *is_banned_options)
         is_banned_dropdown.grid(row=2, column=1)
 
@@ -353,7 +350,6 @@ class LibraryApp(tk.Tk):
                 users_data.to_excel('users.xlsx', index=False)
                 print(f"Banned status updated for {fullname} successfully.")
                 ban_users_window.destroy()
-                # You might want to update the UI or perform other actions after modifying banned status
             else:
                 print("User not found. Please check the entered details.")
 
@@ -380,6 +376,12 @@ class LibraryApp(tk.Tk):
             fullname = entry_fullname.get()
             password = entry_password.get()
             email = entry_email.get()
+
+            check_users_data = pd.read_excel('users.xlsx')
+            if check_users_data[(check_users_data['full_name'] == fullname) | (check_users_data['email'] == email)].shape[0] > 0:
+                print("User with the same full name or email already exists.")
+                return
+
             if not email_validator(email):
                 print("Invalid email format. Please enter a valid email.")
                 return
@@ -414,7 +416,6 @@ class LibraryApp(tk.Tk):
         entry_id = tk.Entry(change_user_window)
         entry_id.grid(row=0, column=1)
 
-        # Labels and entry fields for user details
         tk.Label(change_user_window, text="Full Name").grid(row=1, column=0)
         entry_fullname = tk.Entry(change_user_window)
         entry_fullname.grid(row=1, column=1)
@@ -468,7 +469,6 @@ class LibraryApp(tk.Tk):
                 users_data.to_excel('users.xlsx', index=False)
                 print("User information updated successfully.")
                 change_user_window.destroy()
-                # You might want to update the UI or perform other actions after modifying user info
             else:
                 print("User not found. Please check the entered details.")
 
@@ -479,7 +479,6 @@ class LibraryApp(tk.Tk):
         register_user_window = tk.Toplevel(self)
         register_user_window.title("Register User by Admin")
 
-        # Labels and entry fields for user details
         tk.Label(register_user_window, text="Full Name").grid(row=0, column=0)
         entry_fullname = tk.Entry(register_user_window)
         entry_fullname.grid(row=0, column=1)
@@ -495,7 +494,7 @@ class LibraryApp(tk.Tk):
         tk.Label(register_user_window, text="Permissions").grid(row=3, column=0)
         permissions_options = ["Super Admin", "Staff", "Normal Client"]
         permissions_var = tk.StringVar(register_user_window)
-        permissions_var.set(permissions_options[0])  # default value
+        permissions_var.set(permissions_options[0])
         permissions_dropdown = tk.OptionMenu(register_user_window, permissions_var, *permissions_options)
         permissions_dropdown.grid(row=3, column=1)
 
@@ -504,6 +503,12 @@ class LibraryApp(tk.Tk):
             password = entry_password.get()
             email = entry_email.get()
             permissions = permissions_var.get()
+
+            check_users_data = pd.read_excel('users.xlsx')
+            if check_users_data[(check_users_data['full_name'] == fullname) | (check_users_data['email'] == email)].shape[0] > 0:
+                print("User with the same full name or email already exists.")
+                return
+
             if not email_validator(email):
                 print("Invalid email format. Please enter a valid email.")
                 return
@@ -534,7 +539,6 @@ class LibraryApp(tk.Tk):
             users_data.to_excel('users.xlsx', index=False)
             print("User registered successfully.")
             register_user_window.destroy()
-            # You might want to update the UI or perform other actions after registration
 
         submit_button = tk.Button(register_user_window, text="Register", command=submit_registration)
         submit_button.grid(row=4, columnspan=2)
@@ -547,12 +551,10 @@ class LibraryApp(tk.Tk):
 
         columns = ['full_name', 'email', 'create_at', 'borrowed_books', 'is_ban', 'permissions']
 
-        # Create table headers
         for col_index, col_name in enumerate(columns):
             header_label = tk.Label(user_table, text=col_name.capitalize())
             header_label.grid(row=0, column=col_index)
 
-        # Display user information in table
         for index, row in users_data.iterrows():
             if row['is_ban'] == 0:
                 is_ban_value = 'NO'
@@ -575,15 +577,13 @@ class LibraryApp(tk.Tk):
                     data_row.append(row[col])
                 elif col == 'is_ban':
                     data_row.append(is_ban_value)
-                # else:
-            # data_row.append(permissions)
 
             for col_index, col_value in enumerate(data_row):
                 label = tk.Label(user_table, text=col_value)
                 label.grid(row=index + 1, column=col_index)
 
         def close_user_table():
-            user_table.destroy()  # Close the Toplevel window
+            user_table.destroy()
 
         close_button = tk.Button(user_table, text="Close", command=close_user_table)
         close_button.grid(row=index + 2, columnspan=len(columns))
@@ -598,7 +598,6 @@ class LibraryApp(tk.Tk):
         borrowed_books_table = tk.Toplevel(self)
         borrowed_books_table.title("Borrowed Books")
 
-        # Display borrowed books in a table
         row = 0
         for book, count in borrowed_books.items():
             tk.Label(borrowed_books_table, text="Book Name: ").grid(row=row, column=0)
@@ -610,7 +609,7 @@ class LibraryApp(tk.Tk):
             row += 3
 
         def close_borrowed_books():
-            borrowed_books_table.destroy()  # Close the Toplevel window
+            borrowed_books_table.destroy()
 
         close_button = tk.Button(borrowed_books_table, text="Close", command=close_borrowed_books)
         close_button.grid(row=row, columnspan=2)
@@ -625,7 +624,7 @@ class LibraryApp(tk.Tk):
             user_loaned_books_table = tk.Toplevel(self)
             user_loaned_books_table.title("Loaned Books")
 
-            # Display user's loaned books in a table
+
             row = 0
             for _, book in user_loaned_books.iterrows():
                 tk.Label(user_loaned_books_table, text="Book Name: ").grid(row=row, column=0)
@@ -638,7 +637,7 @@ class LibraryApp(tk.Tk):
                 row += 2
 
             def close_loaned_books():
-                user_loaned_books_table.destroy()  # Close the Toplevel window
+                user_loaned_books_table.destroy()
 
             close_button = tk.Button(user_loaned_books_table, text="Close", command=close_loaned_books)
             close_button.grid(row=row, columnspan=2)
@@ -686,21 +685,18 @@ class LibraryApp(tk.Tk):
 
         if book_index.empty:
             print("This book does not exist.")
-            # self.redirect_main_menu()
             return
 
-        book_row_index = book_index[0]  # Extracting the index label
+        book_row_index = book_index[0]
 
         book_row = books_data.loc[book_row_index]
 
         if book_row['allow_borrowed'] == 'NO':
             print("This book is not available for borrowing.")
-            # self.redirect_main_menu()
             return
 
         if book_row['count'] < book_count:
             print("Not enough copies available to borrow.")
-            # self.redirect_main_menu()
             return
 
         user_index = users_data[users_data['full_name'] == self.user_session["name"]].index[0]
@@ -720,18 +716,17 @@ class LibraryApp(tk.Tk):
             current_borrowed_books = {(book_name, book_author): book_count}
 
         users_data.at[user_index, 'borrowed_books'] = str(current_borrowed_books)
-        books_data.at[book_row_index, 'count'] -= book_count  # Using the label-based index
+        books_data.at[book_row_index, 'count'] -= book_count
 
         if books_data.at[book_row_index, 'user_loaned'] and self.user_session["name"] in books_data.at[
             book_row_index, 'user_loaned']:
-            # Update user_loaned column in books.xlsx
             user_loaned_books = eval(books_data.at[book_row_index, 'user_loaned'])
             if self.user_session["name"] in user_loaned_books:
                 user_loaned_books[self.user_session["name"]] -= book_count
                 if user_loaned_books[self.user_session["name"]] == 0:
                     del user_loaned_books[self.user_session["name"]]
                 elif user_loaned_books[self.user_session["name"]] < 0:
-                    # Update borrowed_books column in users.xlsx
+
                     current_borrowed = users_data.at[user_index, 'borrowed_books']
                     if current_borrowed:
                         current_borrowed = eval(current_borrowed)
@@ -748,7 +743,6 @@ class LibraryApp(tk.Tk):
         books_data.to_excel('books.xlsx', index=False)
         modal_window.destroy()
         print("Book borrowed successfully!")
-        # self.redirect_main_menu()
 
     def show_books(self):
         books_data = pd.read_excel('books.xlsx')
@@ -783,19 +777,16 @@ class LibraryApp(tk.Tk):
         search_button.grid(row=0, column=2)
 
     def display_books(self, book_info, window, columns):
-        # Clear previous book display
         for widget in window.winfo_children():
             widget.destroy()
 
         book_table_label = tk.Label(window, text="Book Information")
         book_table_label.grid(row=0, columnspan=len(columns))
 
-        # Display table headers
         for col_index, col_name in enumerate(columns):
             header_label = tk.Label(window, text=col_name.capitalize())
             header_label.grid(row=1, column=col_index)
 
-        # Display searched books in the table
         for index, row in book_info.iterrows():
             for col_index, col_name in enumerate(columns):
                 label = tk.Label(window, text=row[col_name])
@@ -805,7 +796,6 @@ class LibraryApp(tk.Tk):
         loan_book_modal = tk.Toplevel(self)
         loan_book_modal.title("Loan a Book")
 
-        # Input fields for loaning a book in the modal
         label_name = tk.Label(loan_book_modal, text="Name of the Book")
         label_name.grid(row=0, column=0)
         entry_name = tk.Entry(loan_book_modal)
@@ -828,7 +818,7 @@ class LibraryApp(tk.Tk):
                 entry_name.get(),
                 entry_author.get(),
                 entry_count.get(),
-                loan_book_modal  # Passing the modal reference to close it after submitting
+                loan_book_modal
             )
         )
         borrow_button.grid(row=4, columnspan=2, pady=10)
